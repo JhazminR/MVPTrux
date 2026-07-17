@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "892142320645",
+    "project_id": "mvptrux",
+    "storage_bucket": "mvptrux.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:892142320645:android:317b6ee3a2adad2924b06c",
+        "android_client_info": {
+          "package_name": "com.example.trux_mvp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3ZvNZyos_6la_r0XH1TaLCqspUBiI1q0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
