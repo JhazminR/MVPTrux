@@ -54,7 +54,7 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
   @override
   void initState() {
     super.initState();
-    _cargarPolyline();
+    //_cargarPolyline();
     if (AppData.currentPosition != null) {
       setState(() {
         _currentPosition = AppData.currentPosition;
@@ -543,6 +543,7 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
             child: ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
+                _cargarPolyline();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Siguiendo unidad de la ruta $ruta...'),
@@ -616,6 +617,13 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
         index: _selectedIndex,
         children: [
           _buildMapScreen(), // Índice 0: Mapa
+          PantallaRutas(     // Índice 1 (¡Modificamos esto!)
+          onVolverAlMapa: () {
+            setState(() {
+              _selectedIndex = 0; // Cambia a la pestaña del mapa
+              });
+              },
+              ),
           const PantallaRutas(), // Índice 1: Rutas
           const PantallaAlertas(), // Índice 2: Alertas
           const PantallaTrofeo(), // Índice 3: Trofeo
