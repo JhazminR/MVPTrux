@@ -1,7 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:trux_mvp/AppData.dart'; // Ajusta este import según donde tengas AppData
+import 'Rutas_data.dart'; // Ajusta este import según tu estructura de carpetas
 
-class PantallaRutas extends StatelessWidget {
+class PantallaRutas extends StatefulWidget {
   const PantallaRutas({super.key});
+
+  @override
+  State<PantallaRutas> createState() => _PantallaRutasState();
+}
+
+class _PantallaRutasState extends State<PantallaRutas> {
+  // Obtenemos los destinos reales desde tu archivo de datos
+  final List<Destino> _destinosSugeridos = RutasData.getDestinos();
+
+  // Función para evaluar la proximidad al tocar un destino
+  void _evaluarDestino(BuildContext context, Destino destino) {
+    // 1. Obtenemos la ubicación actual del usuario (simulada o de AppData)
+    // Asumiendo que AppData.currentPosition tiene la ubicación en tiempo real
+    LatLng ubicacionUsuario = AppData.currentPosition != null 
+        ? LatLng(AppData.currentPosition!.latitude, AppData.currentPosition!.longitude)
+        : const LatLng(-8.115, -79.028); // Fallback en caso de null
+
+    // 2. Usamos tu función matemática de RutasData (Tolerancia de 30 metros)
+    bool estaEnRuta = RutasData.isUserOnRoute(ubicacionUsuario, toleranceMeters: 30.0);
+
+    // 3. Mostramos el resultado en pantalla
+    ScaffoldMessenger.of(context).clearSnackBars();
+    if (estaEnRuta) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('¡Excelente! Estás a menos de 30m del paradero para ir a ${destino.nombre}.'),
+          backgroundColor: const Color(0xFF007232),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Estás lejos de la ruta. Dirígete a la avenida principal para ir a ${destino.nombre}.'),
+          backgroundColor: const Color(0xFFE53935),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,16 +105,15 @@ class PantallaRutas extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        // Input de Origen
                         Row(
-                          children: [
-                            const Icon(Icons.my_location, color: Color(0xFF007232), size: 20),
-                            const SizedBox(width: 12),
+                          children: const [
+                            Icon(Icons.my_location, color: Color(0xFF007232), size: 20),
+                            SizedBox(width: 12),
                             Expanded(
                               child: TextField(
                                 decoration: InputDecoration(
                                   hintText: 'Tu ubicación actual',
-                                  hintStyle: const TextStyle(color: Color(0xFF424654), fontSize: 14),
+                                  hintStyle: TextStyle(color: Color(0xFF424654), fontSize: 14),
                                   border: InputBorder.none,
                                   isDense: true,
                                 ),
@@ -79,8 +121,6 @@ class PantallaRutas extends StatelessWidget {
                             ),
                           ],
                         ),
-                        
-                        // Divisor con línea sutil
                         const Padding(
                           padding: EdgeInsets.only(left: 10),
                           child: Align(
@@ -91,17 +131,15 @@ class PantallaRutas extends StatelessWidget {
                             ),
                           ),
                         ),
-                        
-                        // Input de Destino
                         Row(
-                          children: [
-                            const Icon(Icons.location_on, color: Color(0xFFE53935), size: 20),
-                            const SizedBox(width: 12),
+                          children: const [
+                            Icon(Icons.location_on, color: Color(0xFFE53935), size: 20),
+                            SizedBox(width: 12),
                             Expanded(
                               child: TextField(
                                 decoration: InputDecoration(
                                   hintText: '¿A dónde vas?',
-                                  hintStyle: const TextStyle(color: Color(0xFF8A8D9F), fontSize: 14),
+                                  hintStyle: TextStyle(color: Color(0xFF8A8D9F), fontSize: 14),
                                   border: InputBorder.none,
                                   isDense: true,
                                 ),
@@ -120,7 +158,7 @@ class PantallaRutas extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: InkWell(
                       onTap: () {
-                        // Aquí irá la lógica para volver al mapa
+                        // TODO: Implementar lógica de regreso al mapa
                       },
                       borderRadius: BorderRadius.circular(8),
                       child: Padding(
@@ -148,11 +186,11 @@ class PantallaRutas extends StatelessWidget {
                     child: Divider(color: Color(0xFFC3C6D6)),
                   ),
 
-                  // 3. Destinos Recientes / POIs
+                  // 3. Destinos Recientes dinámicos
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                     child: Text(
-                      'Sugerencias',
+                      'Destinos de la ruta',
                       style: TextStyle(
                         color: Color(0xFF8A8D9F),
                         fontSize: 13,
@@ -162,11 +200,10 @@ class PantallaRutas extends StatelessWidget {
                     ),
                   ),
 
-                  // Lista de paraderos/destinos estratégicos
-                  _buildDestinoItem(Icons.school, 'Universidad Tecnológica del Perú', 'Sede Central'),
-                  _buildDestinoItem(Icons.shopping_bag, 'Mall Plaza', 'Av. América Oeste'),
-                  _buildDestinoItem(Icons.park, 'Plaza de Armas', 'Centro Histórico'),
+                  // Aquí iteramos sobre la lista real de RutasData
+                  ..._destinosSugeridos.map((destino) => _buildDestinoItem(context, destino)),
                   
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
@@ -176,8 +213,14 @@ class PantallaRutas extends StatelessWidget {
     );
   }
 
-  // Widget auxiliar para no repetir código en la lista
-  Widget _buildDestinoItem(IconData icon, String title, String subtitle) {
+  // Widget auxiliar ahora recibe un objeto Destino completo
+  Widget _buildDestinoItem(BuildContext context, Destino destino) {
+    // Asignamos iconos basados en el índice o nombre para darle variedad visual
+    IconData icon = Icons.place;
+    if (destino.puntoIndice == 238) icon = Icons.shopping_bag; // Mall Plaza
+    if (destino.puntoIndice == 119) icon = Icons.park; // Parque Amauta
+    if (destino.puntoIndice == 0 || destino.puntoIndice == 356) icon = Icons.route; // Extremos
+
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
       leading: Container(
@@ -189,7 +232,7 @@ class PantallaRutas extends StatelessWidget {
         child: Icon(icon, color: const Color(0xFF424654), size: 20),
       ),
       title: Text(
-        title,
+        destino.nombre,
         style: const TextStyle(
           color: Color(0xFF1A1C1C),
           fontSize: 15,
@@ -197,15 +240,15 @@ class PantallaRutas extends StatelessWidget {
         ),
       ),
       subtitle: Text(
-        subtitle,
+        destino.direccion,
         style: const TextStyle(
           color: Color(0xFF8A8D9F),
           fontSize: 13,
         ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
-      onTap: () {
-        // Lógica de cálculo de proximidad
-      },
+      onTap: () => _evaluarDestino(context, destino),
     );
   }
 }

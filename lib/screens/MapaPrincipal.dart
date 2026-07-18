@@ -9,7 +9,8 @@ import 'package:trux_mvp/screens/PantallaAlertas.dart';
 import 'package:trux_mvp/screens/PantallaPerfil.dart';
 import 'package:trux_mvp/screens/PantallaTrofeo.dart';
 import 'PantallaRutas.dart';
-import 'package:geocoding/geocoding.dart'; // 👈 AGREGAR IMPORT
+import 'package:geocoding/geocoding.dart';
+import 'package:trux_mvp/Rutas_data.dart'; // 👈 AGREGAR IMPORT
 
 class MapaPrincipal extends StatefulWidget {
   final String rol;
@@ -32,12 +33,28 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
       ValueNotifier({});
   Map<String, Map<String, dynamic>> _microData = {};
   int _selectedIndex = 0;
+  Set<Polyline> _rutasPolylines = {};
 
   static const LatLng _initialPosition = LatLng(-8.115, -79.028);
 
+  void _cargarPolyline() {
+  setState(() {
+    _rutasPolylines.add(
+      Polyline(
+        polylineId: const PolylineId('ruta_principal_icaro'),
+        points: RutasData.rutaPrincipal.polyline, // Extrae los 357 puntos
+        color: const Color(0xFFE53935), // Color rojo para que resalte
+        width: 5, // Grosor de la línea
+        geodesic: true,
+      ),
+    );
+  });
+}
+  
   @override
   void initState() {
     super.initState();
+    _cargarPolyline();
     if (AppData.currentPosition != null) {
       setState(() {
         _currentPosition = AppData.currentPosition;
@@ -626,6 +643,7 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
                   : _initialPosition,
               zoom: 16,
             ),
+            polylines: _rutasPolylines,
             markers: {
               if (_userMarker != null) _userMarker!,
               ..._vehicleMarkers,
