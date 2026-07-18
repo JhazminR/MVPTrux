@@ -24,8 +24,8 @@ class _ModoConductorSateliteState extends State<ModoConductorSatelite> {
   StreamSubscription<Position>? _positionStreamSubscription;
 
   // Controladores y variables para la UI
-  final String _unidadInfo = 'UNIDAD: LÍNEA 15 - A';
-  final String _appVersion = 'v4.1.0-STABLE | TRUX APP';
+  final String _unidadInfo = 'MICROBUS ÍCARO - LETRA D';
+  final String _appVersion = 'v4.1.0 | TRUX APP';
 
   // Latencia simulada (en ms)
   int _latency = 0;
@@ -181,7 +181,7 @@ class _ModoConductorSateliteState extends State<ModoConductorSatelite> {
           'conductorId': 'conductor_${DateTime.now().millisecondsSinceEpoch}',
           'latitud': _currentPosition!.latitude,
           'longitud': _currentPosition!.longitude,
-          'ruta': 'A',
+          'ruta': 'D',
           'estado': 'en_ruta',
           'ultima_actualizacion': FieldValue.serverTimestamp(),
           'rol': 'conductor',

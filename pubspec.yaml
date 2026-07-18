@@ -47,6 +47,11 @@ dependencies:
   permission_handler: ^12.0.3     # Para pedir permisos de ubicación
   geocoding: ^5.0.0           # Para codificar y decodificar direcciones
 
+  #Alertas y notificaciones
+  flutter_local_notifications: ^17.2.1+2
+  device_info_plus: ^13.2.0
+  shared_preferences: ^2.3.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

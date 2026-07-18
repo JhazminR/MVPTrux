@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:trux_mvp/AppData.dart';
+import 'package:trux_mvp/screens/MapaDetalleRuta.dart';
 import 'package:trux_mvp/screens/PantallaAlertas.dart';
 import 'package:trux_mvp/screens/PantallaPerfil.dart';
 import 'package:trux_mvp/screens/PantallaTrofeo.dart';
@@ -38,19 +39,19 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
   static const LatLng _initialPosition = LatLng(-8.115, -79.028);
 
   void _cargarPolyline() {
-  setState(() {
-    _rutasPolylines.add(
-      Polyline(
-        polylineId: const PolylineId('ruta_principal_icaro'),
-        points: RutasData.rutaPrincipal.polyline, // Extrae los 357 puntos
-        color: const Color(0xFFE53935), // Color rojo para que resalte
-        width: 5, // Grosor de la línea
-        geodesic: true,
-      ),
-    );
-  });
-}
-  
+    setState(() {
+      _rutasPolylines.add(
+        Polyline(
+          polylineId: const PolylineId('ruta_principal_icaro'),
+          points: RutasData.rutaPrincipal.polyline, // Extrae los 357 puntos
+          color: const Color(0xFFE53935), // Color rojo para que resalte
+          width: 5, // Grosor de la línea
+          geodesic: true,
+        ),
+      );
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -543,14 +544,15 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
             child: ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
-                _cargarPolyline();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Siguiendo unidad de la ruta $ruta...'),
-                    backgroundColor: const Color(0xFF0040A1),
+                // Navegar a MapaDetalleRuta en modo soloRuta
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MapaDetalleRuta(
+                      soloRuta: true, // 👈 Activar modo solo ruta
+                    ),
                   ),
                 );
-                // TODO: Navegar a la pestaña Rutas
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF0040A1),
@@ -560,7 +562,7 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
                 ),
               ),
               child: const Text(
-                'Seguir unidad',
+                'Ver detalle de ruta',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -617,14 +619,14 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
         index: _selectedIndex,
         children: [
           _buildMapScreen(), // Índice 0: Mapa
-          PantallaRutas(     // Índice 1 (¡Modificamos esto!)
-          onVolverAlMapa: () {
-            setState(() {
-              _selectedIndex = 0; // Cambia a la pestaña del mapa
+          PantallaRutas(
+            // Índice 1 (¡Modificamos esto!)
+            onVolverAlMapa: () {
+              setState(() {
+                _selectedIndex = 0; // Cambia a la pestaña del mapa
               });
-              },
-              ),
-          const PantallaRutas(), // Índice 1: Rutas
+            },
+          ),
           const PantallaAlertas(), // Índice 2: Alertas
           const PantallaTrofeo(), // Índice 3: Trofeo
           const PantallaPerfil(), // Índice 4: Perfil
