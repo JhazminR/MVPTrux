@@ -10,7 +10,7 @@ import 'package:trux_mvp/screens/PantallaPerfil.dart';
 import 'package:trux_mvp/screens/PantallaTrofeo.dart';
 import 'PantallaRutas.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:trux_mvp/Rutas_data.dart'; // 👈 AGREGAR IMPORT
+import '../Rutas_data.dart'; // 👈 AGREGAR IMPORT
 
 class MapaPrincipal extends StatefulWidget {
   final String rol;
