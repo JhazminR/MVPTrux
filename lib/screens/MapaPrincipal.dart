@@ -587,17 +587,18 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
             ),
           ),
           const SizedBox(height: 20),
+          
+          // BOTÓN 1: VER DETALLE (El que ya tenías)
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
-                // Navegar a MapaDetalleRuta en modo soloRuta
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => MapaDetalleRuta(
-                      soloRuta: true, // 👈 Activar modo solo ruta
+                      soloRuta: true,
                     ),
                   ),
                 );
@@ -620,6 +621,37 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
               ),
             ),
           ),
+          
+          const SizedBox(height: 12), // Espaciador entre botones
+          
+          // 📢 NUEVO BOTÓN 2: REPORTAR AFORO
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () {
+                Navigator.pop(context); // Cierra el bottom sheet del micro
+                _mostrarDialogAforo(ruta); // Abre nuestro nuevo dialog de reporte
+              },
+              icon: const Icon(Icons.campaign, color: Color(0xFF0040A1)),
+              label: const Text(
+                'Reportar aforo',
+                style: TextStyle(
+                  color: Color(0xFF0040A1),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Inter',
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                side: const BorderSide(color: Color(0xFF0040A1), width: 1.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+          
           const SizedBox(height: 8),
         ],
       ),
@@ -656,6 +688,114 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
         ),
       ],
     );
+  }
+
+  // --- MÓDULO DE AFORO / GAMIFICACIÓN (HIPÓTESIS 2 - CROWDSOURCING) ---
+  void _mostrarDialogAforo(String ruta) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text(
+            '¿Cómo va el micro?',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1A1C1C),
+              fontFamily: 'Inter',
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Ayuda a otros pasajeros reportando el aforo de este vehículo.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Color(0xFF424654), fontSize: 14),
+              ),
+              const SizedBox(height: 20),
+              _buildAforoOption(
+                icon: Icons.event_seat,
+                color: const Color(0xFF007232), // Verde
+                label: 'Vacío (Hay asientos)',
+                onTap: () => _enviarReporteAforo(ruta, 'vacio'),
+              ),
+              const Divider(height: 1),
+              _buildAforoOption(
+                icon: Icons.people,
+                color: const Color(0xFFF57C00), // Naranja
+                label: 'Medio (Gente parada)',
+                onTap: () => _enviarReporteAforo(ruta, 'medio'),
+              ),
+              const Divider(height: 1),
+              _buildAforoOption(
+                icon: Icons.groups,
+                color: const Color(0xFFE53935), // Rojo
+                label: 'Lleno (No entra nadie)',
+                onTap: () => _enviarReporteAforo(ruta, 'lleno'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAforoOption({
+    required IconData icon,
+    required Color color,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: color, size: 28),
+      title: Text(
+        label,
+        style: const TextStyle(fontWeight: FontWeight.w500, fontFamily: 'Inter'),
+      ),
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    );
+  }
+
+  Future<void> _enviarReporteAforo(String ruta, String nivel) async {
+    Navigator.pop(context); // Cierra el dialog
+
+    try {
+      // Escritura rápida en Firestore (Dummy para validar interacción)
+      await FirebaseFirestore.instance.collection('reportes_aforo').add({
+        'ruta': ruta,
+        'nivel_aforo': nivel,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      // Feedback visual inmediato y gamificación
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: const [
+                Icon(Icons.emoji_events, color: Colors.amber),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    '¡Gracias por reportar! Ganaste 10 puntos en Trux.',
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: const Color(0xFF0040A1),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      print('❌ Error guardando reporte: $e');
+    }
   }
 
   // --- UI PRINCIPAL ---
