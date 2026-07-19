@@ -12,6 +12,7 @@ import 'package:trux_mvp/screens/PantallaTrofeo.dart';
 import 'PantallaRutas.dart';
 import 'package:geocoding/geocoding.dart';
 import '../Rutas_data.dart'; // 👈 AGREGAR IMPORT
+import 'package:url_launcher/url_launcher.dart';
 
 class MapaPrincipal extends StatefulWidget {
   final String rol;
@@ -192,6 +193,53 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
       infoWindow: const InfoWindow(title: 'Tu ubicación'),
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
     );
+  }
+
+  // --- MÓDULO DE SEGURIDAD (HIPÓTESIS 2) ---
+  Future<void> _enviarAlertaWhatsApp() async {
+    if (_currentPosition == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Aún obteniendo tu ubicación...')),
+      );
+      return;
+    }
+
+    // Capturamos las coordenadas actuales
+    final lat = _currentPosition!.latitude;
+    final lng = _currentPosition!.longitude;
+    final urlMaps = 'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
+
+    // Como es un MVP, podemos simular la variable de la línea o tomar la más cercana.
+    // Aquí predefinimos el mensaje base requerido para la validación del jurado.
+    final String mensaje = 
+        "🚨 *Alerta Trux* 🚨\n\n"
+        "Estoy viajando en la Línea D (Micro Ícaro). Mi ubicación en vivo es:\n"
+        "$urlMaps\n\n"
+        "Llegaré a mi destino en aproximadamente 15 minutos.";
+
+    // Codificamos el mensaje para que sea válido en una URL
+    final String mensajeCodificado = Uri.encodeComponent(mensaje);
+    final Uri whatsappUrl = Uri.parse("whatsapp://send?text=$mensajeCodificado");
+
+    try {
+      if (await canLaunchUrl(whatsappUrl)) {
+        await launchUrl(whatsappUrl);
+      } else {
+        // Fallback por si no tienen WhatsApp instalado o están en emulador
+        final Uri webUrl = Uri.parse("https://wa.me/?text=$mensajeCodificado");
+        if (await canLaunchUrl(webUrl)) {
+          await launchUrl(webUrl, mode: LaunchMode.externalApplication);
+        } else {
+          throw 'No se pudo abrir WhatsApp';
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No se pudo abrir WhatsApp. Verifica que esté instalado.')),
+        );
+      }
+    }
   }
 
   // --- Cálculo de distancia ---
@@ -668,6 +716,15 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
           right: 16,
           child: Column(
             children: [
+              // 🔴 NUEVO BOTÓN DE SEGURIDAD
+              FloatingActionButton(
+                heroTag: 'btn_seguridad',
+                mini: false, // Más grande para que sea fácil de presionar en pánico
+                backgroundColor: const Color(0xFFE53935), // Rojo alerta
+                onPressed: _enviarAlertaWhatsApp,
+                child: const Icon(Icons.shield, color: Colors.white, size: 28),
+              ),
+              const SizedBox(height: 16), // Espaciado mayor
               FloatingActionButton(
                 heroTag: 'btn_ubicacion',
                 mini: true,
