@@ -255,14 +255,20 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
 
     try {
       if (await canLaunchUrl(whatsappUrl)) {
-        await launchUrl(whatsappUrl);
+        await launchUrl(
+          whatsappUrl,
+          mode: LaunchMode.externalApplication, // 👈 SOLUCIÓN AGREGADA AQUÍ
+        );
       } else {
         // Fallback por si no tienen WhatsApp instalado o están en emulador
         final Uri webUrl = Uri.parse("https://wa.me/?text=$mensajeCodificado");
         if (await canLaunchUrl(webUrl)) {
-          await launchUrl(webUrl, mode: LaunchMode.externalApplication);
+          await launchUrl(
+            webUrl, 
+            mode: LaunchMode.externalApplication
+          );
         } else {
-          throw 'No se pudo abrir WhatsApp';
+          throw 'No se pudo abrir WhatsApp ni el navegador web.';
         }
       }
     } catch (e) {
