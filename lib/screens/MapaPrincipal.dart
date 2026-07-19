@@ -410,6 +410,7 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
                   distanciaKm: distanciaKm,
                   etaText: etaText,
                   tiempoActualizacion: tiempoActualizacion,
+                  ultimaActualizacion: ultimaActualizacion,
                 );
               },
             );
@@ -472,12 +473,14 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
   }
 
   // --- Widgets del bottom sheet (AHORA DENTRO DE LA CLASE) ---
+  // --- UI DEL BOTTOM SHEET (ACTUALIZADA CON ETA Y ESTADO) ---
   Widget _buildBottomSheetContent({
     required String ruta,
     required String ubicacion,
     double? distanciaKm,
     required String etaText,
     required String tiempoActualizacion,
+    DateTime? ultimaActualizacion, // 👈 Recibimos la fecha exacta
   }) {
     String distanciaText = 'N/A';
     if (distanciaKm != null) {
@@ -487,6 +490,18 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
         distanciaText = '${distanciaKm.toStringAsFixed(1)} km';
       }
     }
+
+    // --- LÓGICA DE ESTADO (MÓDULO 4) ---
+    int segundosDesdeActualizacion = 0;
+    if (ultimaActualizacion != null) {
+      segundosDesdeActualizacion = DateTime.now().difference(ultimaActualizacion).inSeconds;
+    }
+    bool enCamino = segundosDesdeActualizacion <= 15;
+    
+    Color estadoColor = enCamino ? const Color(0xFF007232) : const Color(0xFFE53935);
+    Color fondoEstadoColor = enCamino ? const Color(0xFFE8F5E9) : const Color(0xFFFFEBEE);
+    String estadoTexto = enCamino ? "En camino" : "Detenido";
+    IconData estadoIcono = enCamino ? Icons.sensors : Icons.sensors_off;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -558,37 +573,114 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          
+          // --- 1. CHIP DE ESTADO DE CONEXIÓN ---
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: fondoEstadoColor,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: estadoColor.withOpacity(0.3)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(estadoIcono, color: estadoColor, size: 16),
+                  const SizedBox(width: 6),
+                  Text(
+                    estadoTexto,
+                    style: TextStyle(
+                      color: estadoColor, 
+                      fontWeight: FontWeight.bold, 
+                      fontSize: 14,
+                      fontFamily: 'Inter',
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    tiempoActualizacion, // Muestra "Hace X seg"
+                    style: TextStyle(
+                      color: estadoColor.withOpacity(0.8), 
+                      fontWeight: FontWeight.w500, 
+                      fontSize: 12,
+                      fontFamily: 'Inter',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // --- 2. VISIBILIDAD DE ETA Y DISTANCIA GIGANTE ---
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF5F7FA),
+              color: const Color(0xFFF8F9FA),
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE0E0E0)),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildInfoItem(
-                  icon: Icons.straighten,
-                  label: 'Distancia',
-                  value: distanciaText,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Tiempo estimado',
+                      style: TextStyle(
+                        color: Color(0xFF757575),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      etaText, // Ej: "15 min"
+                      style: const TextStyle(
+                        fontSize: 24, // Tamaño grande para fácil lectura
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF1A1C1C),
+                      ),
+                    ),
+                  ],
                 ),
-                _buildInfoItem(
-                  icon: Icons.access_time,
-                  label: 'ETA',
-                  value: etaText,
+                Container(
+                  height: 40,
+                  width: 1,
+                  color: const Color(0xFFE0E0E0), // Divisor
                 ),
-                _buildInfoItem(
-                  icon: Icons.update,
-                  label: 'Actualizado',
-                  value: tiempoActualizacion,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const Text(
+                      'Distancia',
+                      style: TextStyle(
+                        color: Color(0xFF757575),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      distanciaText, // Ej: "2.4 km"
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF0040A1),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
+          
           const SizedBox(height: 20),
           
-          // BOTÓN 1: VER DETALLE (El que ya tenías)
+          // BOTÓN 1: VER DETALLE 
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -622,15 +714,15 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
             ),
           ),
           
-          const SizedBox(height: 12), // Espaciador entre botones
+          const SizedBox(height: 12),
           
-          // 📢 NUEVO BOTÓN 2: REPORTAR AFORO
+          // BOTÓN 2: REPORTAR AFORO
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: () {
-                Navigator.pop(context); // Cierra el bottom sheet del micro
-                _mostrarDialogAforo(ruta); // Abre nuestro nuevo dialog de reporte
+                Navigator.pop(context); 
+                _mostrarDialogAforo(ruta); 
               },
               icon: const Icon(Icons.campaign, color: Color(0xFF0040A1)),
               label: const Text(
