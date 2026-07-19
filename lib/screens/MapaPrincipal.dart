@@ -13,6 +13,9 @@ import 'PantallaRutas.dart';
 import 'package:geocoding/geocoding.dart';
 import '../Rutas_data.dart'; // 👈 AGREGAR IMPORT
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:ui' as ui;
+import 'dart:typed_data';
+import 'package:flutter/services.dart';
 
 class MapaPrincipal extends StatefulWidget {
   final String rol;
@@ -36,6 +39,34 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
   Map<String, Map<String, dynamic>> _microData = {};
   int _selectedIndex = 0;
   Set<Polyline> _rutasPolylines = {};
+  // Variables para almacenar los iconos ya procesados
+  BitmapDescriptor? _iconoBC;
+  BitmapDescriptor? _iconoD;
+
+  // Función para redimensionar imágenes y convertirlas en marcadores
+  Future<Uint8List> _getBytesFromAsset(String path, int width) async {
+    ByteData data = await rootBundle.load(path);
+    ui.Codec codec = await ui.instantiateImageCodec(
+      data.buffer.asUint8List(), 
+      targetWidth: width
+    );
+    ui.FrameInfo fi = await codec.getNextFrame();
+    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!.buffer.asUint8List();
+  }
+
+  // Carga inicial de los assets
+  Future<void> _cargarIconosPersonalizados() async {
+    // Redimensionamos de 400x400 a 100px para que se vean proporcionados en el mapa
+    final Uint8List markerIconBC = await _getBytesFromAsset('assets/images/icono_bc.png', 100);
+    final Uint8List markerIconD = await _getBytesFromAsset('assets/images/icono_d.png', 100);
+    
+    if (mounted) {
+      setState(() {
+        _iconoBC = BitmapDescriptor.fromBytes(markerIconBC);
+        _iconoD = BitmapDescriptor.fromBytes(markerIconD);
+      });
+    }
+  }
 
   static const LatLng _initialPosition = LatLng(-8.115, -79.028);
 
@@ -56,6 +87,7 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
   @override
   void initState() {
     super.initState();
+    _cargarIconosPersonalizados();
     //_cargarPolyline();
     if (AppData.currentPosition != null) {
       setState(() {
@@ -298,13 +330,24 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
                   'lng': lng,
                   'ultimaActualizacion': ultimaActualizacion,
                 };
+
+                // Lógica condicional para asignar el icono según la ruta
+                BitmapDescriptor iconoVehiculo = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen);
+                
+                String rutaUpper = ruta.toUpperCase();
+                if (rutaUpper == 'D' && _iconoD != null) {
+                  iconoVehiculo = _iconoD!;
+                } else if ((rutaUpper == 'B' || rutaUpper == 'C') && _iconoBC != null) {
+                  iconoVehiculo = _iconoBC!;
+                }
+
                 newMarkers.add(
                   Marker(
                     markerId: MarkerId(doc.id),
                     position: LatLng(lat, lng),
-                    icon: BitmapDescriptor.defaultMarkerWithHue(
-                      BitmapDescriptor.hueGreen,
-                    ),
+                    icon: iconoVehiculo, // 👈 Se asigna el PNG personalizado
+                    // Opcional: Centrar el punto de anclaje de la imagen
+                    anchor: const Offset(0.5, 0.5), 
                     onTap: () {
                       _showMicroBottomSheet(doc.id);
                     },
