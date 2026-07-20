@@ -1,5 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<<<<<<< HEAD
     
+=======
+>>>>>>> 44cbc4b4e5bf959fb7c8bc9ed4a7865ce2fdfed5
     <application
         android:label="trux_mvp"
         android:name="${applicationName}"
