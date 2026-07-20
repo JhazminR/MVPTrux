@@ -61,103 +61,108 @@ class SeleccionDePerfil extends StatelessWidget {
             ),
           ),
           // --- Contenido principal (scrollable) ---
-          SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Título principal
-                const Text(
-                  '¿Cómo usarás Trux hoy?',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Color(0xFF1A1C1C),
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    fontFamily: 'Inter',
-                    height: 1.33,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                // Subtítulo
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 32),
-                  child: Text(
-                    'Selecciona tu perfil para personalizar tu\nexperiencia de viaje en Trujillo.',
+          Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).padding.bottom + 16,
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Título principal
+                  const Text(
+                    '¿Cómo usarás Trux hoy?',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Color(0xFF424654),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
+                      color: Color(0xFF1A1C1C),
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
                       fontFamily: 'Inter',
-                      height: 1.43,
+                      height: 1.33,
                     ),
                   ),
-                ),
-                const SizedBox(height: 32),
-                // Tarjetas de selección de perfil (en una columna)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Column(
-                    children: [
-                      // Tarjeta "Soy Pasajero"
-                      _buildProfileCard(
-                        icon: Icons.person,
-                        title: 'Soy Pasajero',
-                        subtitle: 'Encuentra tus micros',
-                        titleColor: const Color(0xFF0040A1),
-                        iconBackground: const Color(0xFFDAE2FF),
-                        onTap: () {
-                          // Navega al Mapa Principal
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const MapaPrincipal(rol: 'pasajero'),
-                            ),
-                          );
-                        },
+                  const SizedBox(height: 8),
+                  // Subtítulo
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 32),
+                    child: Text(
+                      'Selecciona tu perfil para personalizar tu\nexperiencia de viaje en Trujillo.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color(0xFF424654),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        fontFamily: 'Inter',
+                        height: 1.43,
                       ),
-                      const SizedBox(height: 16),
-                      // Tarjeta "Soy Conductor"
-                      _buildProfileCard(
-                        icon: Icons.directions_car, // Placeholder
-                        title: 'Soy Conductor',
-                        subtitle: 'Modo Low Data',
-                        titleColor: const Color(0xFF006D2F),
-                        iconBackground: const Color(0xFF5DFD8A),
-                        onTap: () {
-                          // Navega al Mapa Principal
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const ModoConductorSatelite(),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 32),
-                // Ilustración decorativa (placeholder)
-                Container(
-                  width: 280,
-                  height: 280,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE5E5F7),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFC3C6D6)),
+                  const SizedBox(height: 32),
+                  // Tarjetas de selección de perfil (en una columna)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Column(
+                      children: [
+                        // Tarjeta "Soy Pasajero"
+                        _buildProfileCard(
+                          icon: Icons.person,
+                          title: 'Soy Pasajero',
+                          subtitle: 'Encuentra tus micros',
+                          titleColor: const Color(0xFF0040A1),
+                          iconBackground: const Color(0xFFDAE2FF),
+                          onTap: () {
+                            // Navega al Mapa Principal
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const MapaPrincipal(rol: 'pasajero'),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        // Tarjeta "Soy Conductor"
+                        _buildProfileCard(
+                          icon: Icons.directions_car, // Placeholder
+                          title: 'Soy Conductor',
+                          subtitle: 'Modo Low Data',
+                          titleColor: const Color(0xFF006D2F),
+                          iconBackground: const Color(0xFF5DFD8A),
+                          onTap: () {
+                            // Navega al Mapa Principal
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const ModoConductorSatelite(),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.directions_bus,
-                    size: 80,
-                    color: Color(0xFF0040A1),
+                  const SizedBox(height: 32),
+                  // Ilustración decorativa (placeholder)
+                  Container(
+                    width: 280,
+                    height: 280,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE5E5F7),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFC3C6D6)),
+                    ),
+                    child: const Icon(
+                      Icons.directions_bus,
+                      size: 80,
+                      color: Color(0xFF0040A1),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
-              ],
+                  const SizedBox(height: 20),
+                ],
+              ),
             ),
           ),
         ],

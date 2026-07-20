@@ -310,8 +310,12 @@ class _ModoConductorSateliteState extends State<ModoConductorSatelite> {
           // Contenido principal con SafeArea (evita que se solape con la muesca)
           SafeArea(
             child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: isSmallScreen ? 16 : 24,
+              padding: EdgeInsets.fromLTRB(
+                isSmallScreen ? 16 : 24,
+                0,
+                isSmallScreen ? 16 : 24,
+                MediaQuery.of(context).padding.bottom +
+                    (isSmallScreen ? 16 : 24),
               ),
               child: Column(
                 children: [

@@ -42,7 +42,10 @@ class _MapaDetalleRutaState extends State<MapaDetalleRuta> {
   void _prepararMapa() {
     // Ubicación del usuario (si está disponible)
     final ubicacionUsuario = AppData.currentPosition != null
-        ? LatLng(AppData.currentPosition!.latitude, AppData.currentPosition!.longitude)
+        ? LatLng(
+            AppData.currentPosition!.latitude,
+            AppData.currentPosition!.longitude,
+          )
         : const LatLng(-8.115, -79.028);
 
     // Siempre mostrar la polyline
@@ -66,7 +69,9 @@ class _MapaDetalleRutaState extends State<MapaDetalleRuta> {
             markerId: const MarkerId('usuario'),
             position: ubicacionUsuario,
             infoWindow: const InfoWindow(title: 'Tú estás aquí'),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueGreen,
+            ),
           ),
         );
       }
@@ -141,7 +146,8 @@ class _MapaDetalleRutaState extends State<MapaDetalleRuta> {
         position: paradaSubida,
         infoWindow: InfoWindow(
           title: 'Parada de subida',
-          snippet: 'Camina ${distanciaCaminataInicial.round()} m desde tu ubicación',
+          snippet:
+              'Camina ${distanciaCaminataInicial.round()} m desde tu ubicación',
         ),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
       ),
@@ -178,7 +184,8 @@ class _MapaDetalleRutaState extends State<MapaDetalleRuta> {
     );
 
     // Calcular ETA total y distancia
-    final distanciaTotal = distanciaCaminataInicial + distanciaMicro + distanciaCaminataFinal;
+    final distanciaTotal =
+        distanciaCaminataInicial + distanciaMicro + distanciaCaminataFinal;
     _etaMinutos = RutasData.calcularETA(distanciaTotal);
     _distanciaKm = distanciaTotal / 1000;
   }
@@ -195,10 +202,12 @@ class _MapaDetalleRutaState extends State<MapaDetalleRuta> {
     } else {
       // Modo detalle: usar usuario, subida, bajada, destino
       if (AppData.currentPosition != null) {
-        puntos.add(LatLng(
-          AppData.currentPosition!.latitude,
-          AppData.currentPosition!.longitude,
-        ));
+        puntos.add(
+          LatLng(
+            AppData.currentPosition!.latitude,
+            AppData.currentPosition!.longitude,
+          ),
+        );
       }
       if (widget.destinoSeleccionado != null) {
         puntos.add(widget.destinoSeleccionado!.coordenadas);
@@ -226,10 +235,7 @@ class _MapaDetalleRutaState extends State<MapaDetalleRuta> {
         // Fallback: si falla, centrar en Trujillo
         _mapController.animateCamera(
           CameraUpdate.newCameraPosition(
-            const CameraPosition(
-              target: LatLng(-8.115, -79.028),
-              zoom: 13,
-            ),
+            const CameraPosition(target: LatLng(-8.115, -79.028), zoom: 13),
           ),
         );
       }
@@ -272,98 +278,116 @@ class _MapaDetalleRutaState extends State<MapaDetalleRuta> {
     String subtitulo = esSoloRuta
         ? 'Vista completa de la ruta'
         : (widget.esDestinoDirecto ?? false)
-            ? 'Llegada en $_etaMinutos min'
-            : 'Llegada en $_etaMinutos min (camina ${(widget.distanciaCaminataFinal ?? 0).round()} m)';
+        ? 'Llegada en $_etaMinutos min'
+        : 'Llegada en $_etaMinutos min (camina ${(widget.distanciaCaminataFinal ?? 0).round()} m)';
 
     return Scaffold(
-      body: Stack(
-        children: [
-          // 1. El Mapa
-          GoogleMap(
-            onMapCreated: _onMapCreated,
-            initialCameraPosition: const CameraPosition(
-              target: LatLng(-8.115, -79.028),
-              zoom: 14.0,
-            ),
-            polylines: _polylines,
-            markers: _markers,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: false,
-            zoomControlsEnabled: false,
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).padding.bottom,
           ),
-
-          // 2. Botón de regreso
-          Positioned(
-            top: 50,
-            left: 16,
-            child: InkWell(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+          child: Stack(
+            children: [
+              // 1. El Mapa
+              GoogleMap(
+                onMapCreated: _onMapCreated,
+                initialCameraPosition: const CameraPosition(
+                  target: LatLng(-8.115, -79.028),
+                  zoom: 14.0,
                 ),
-                child: const Icon(Icons.arrow_back, color: Color(0xFF1A1C1C)),
+                polylines: _polylines,
+                markers: _markers,
+                myLocationEnabled: true,
+                myLocationButtonEnabled: false,
+                zoomControlsEnabled: false,
               ),
-            ),
-          ),
 
-          // 3. Tarjeta superior de información
-          Positioned(
-            top: 50,
-            left: 70,
-            right: 16,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: const [
-                  BoxShadow(color: Colors.black12, blurRadius: 8),
-                ],
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.directions_bus, color: Color(0xFF0040A1)),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          titulo,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: Color(0xFF8A8D9F),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          subtitulo,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1A1C1C),
-                          ),
-                        ),
+              // 2. Botón de regreso
+              Positioned(
+                top: 50,
+                left: 16,
+                child: InkWell(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(color: Colors.black26, blurRadius: 4),
                       ],
                     ),
-                  ),
-                  Text(
-                    '${_distanciaKm.toStringAsFixed(1)} km',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF007232),
+                    child: const Icon(
+                      Icons.arrow_back,
+                      color: Color(0xFF1A1C1C),
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
+
+              // 3. Tarjeta superior de información
+              Positioned(
+                top: 50,
+                left: 70,
+                right: 16,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: const [
+                      BoxShadow(color: Colors.black12, blurRadius: 8),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.directions_bus,
+                        color: Color(0xFF0040A1),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              titulo,
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: Color(0xFF8A8D9F),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              subtitulo,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF1A1C1C),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        '${_distanciaKm.toStringAsFixed(1)} km',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF007232),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

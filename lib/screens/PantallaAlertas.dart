@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../Rutas_data.dart';
 import '../AppData.dart';
@@ -18,7 +17,6 @@ class _PantallaAlertasState extends State<PantallaAlertas> {
   // Variables de estado
   List<Map<String, dynamic>> _alertas = [];
   List<Map<String, dynamic>> _microsActivos = [];
-  String? _deviceId;
   bool _isLoading = true;
 
   // Streams
@@ -28,7 +26,6 @@ class _PantallaAlertasState extends State<PantallaAlertas> {
   @override
   void initState() {
     super.initState();
-    _initDeviceId();
     _listenToMicros();
     _listenToAlertas();
   }
@@ -40,18 +37,7 @@ class _PantallaAlertasState extends State<PantallaAlertas> {
     super.dispose();
   }
 
-  // --- Obtener ID del dispositivo ---
-  Future<void> _initDeviceId() async {
-    final deviceInfo = DeviceInfoPlugin();
-    if (Theme.of(context).platform == TargetPlatform.android) {
-      final android = await deviceInfo.androidInfo;
-      _deviceId = android.id; // Android ID
-    } else {
-      final ios = await deviceInfo.iosInfo;
-      _deviceId = ios.identifierForVendor ?? 'ios_device';
-    }
-    setState(() {});
-  }
+  // NOTE: removed deviceId logic for emulator testing. Alerts are stored without deviceId.
 
   // --- Escuchar micros activos en tiempo real ---
   void _listenToMicros() {
@@ -90,11 +76,12 @@ class _PantallaAlertasState extends State<PantallaAlertas> {
 
   // --- Escuchar alertas del usuario desde Firestore ---
   void _listenToAlertas() {
-    if (_deviceId == null) return;
+    // Cancelar cualquier suscripción previa antes de crear una nueva
+    _alertasSubscription?.cancel();
 
+    // Escuchar todas las alertas (sin filtrar por deviceId) para facilitar pruebas en emulador.
     _alertasSubscription = FirebaseFirestore.instance
         .collection('alertas')
-        .where('deviceId', isEqualTo: _deviceId)
         .snapshots()
         .listen((snapshot) {
           List<Map<String, dynamic>> alertas = [];
@@ -243,9 +230,11 @@ class _PantallaAlertasState extends State<PantallaAlertas> {
                     const SizedBox(height: 16),
                     // Destino (búsqueda o selección)
                     Autocomplete<Destino>(
+                      displayStringForOption: (Destino d) => d.nombre,
                       optionsBuilder: (textEditingValue) {
                         if (textEditingValue.text.isEmpty) {
-                          return const Iterable<Destino>.empty();
+                          // Mostrar todos los destinos si el usuario no escribe
+                          return destinos;
                         }
                         return destinos.where(
                           (destino) =>
@@ -259,10 +248,19 @@ class _PantallaAlertasState extends State<PantallaAlertas> {
                       },
                       onSelected: (destino) {
                         destinoCoordenadas = destino.coordenadas;
+                        // actualizar ambos controladores para reflejar la selección
                         nombreController.text = destino.nombre;
                       },
                       fieldViewBuilder:
                           (context, controller, focusNode, onFieldSubmitted) {
+                            // Usar el controller interno para que Autocomplete funcione
+                            // y mantener sincronizado el nombreController para validación
+                            controller.addListener(() {
+                              if (controller.text != nombreController.text) {
+                                nombreController.text = controller.text;
+                              }
+                            });
+
                             return TextField(
                               controller: controller,
                               focusNode: focusNode,
@@ -319,6 +317,22 @@ class _PantallaAlertasState extends State<PantallaAlertas> {
                 ),
                 ElevatedButton(
                   onPressed: () {
+                    // Si el usuario escribió el nombre pero no seleccionó la opción,
+                    // intentar resolver el destino por nombre exacto (case-insensitive).
+                    if (destinoCoordenadas == null &&
+                        nombreController.text.trim().isNotEmpty) {
+                      try {
+                        final match = destinos.firstWhere(
+                          (d) =>
+                              d.nombre.toLowerCase() ==
+                              nombreController.text.trim().toLowerCase(),
+                        );
+                        destinoCoordenadas = match.coordenadas;
+                      } catch (e) {
+                        // no encontrado, dejamos destinoCoordenadas como null
+                      }
+                    }
+
                     // 1. Verificar que destinoCoordenadas NO sea nulo y que el nombre no esté vacío
                     if (destinoCoordenadas == null ||
                         nombreController.text.isEmpty) {
@@ -337,7 +351,6 @@ class _PantallaAlertasState extends State<PantallaAlertas> {
                     final lng = destinoCoordenadas!.longitude;
 
                     final data = {
-                      'deviceId': _deviceId!,
                       'microRuta': microRuta,
                       'destinoNombre': nombreController.text.trim(),
                       'destinoCoordenadas': {'lat': lat, 'lng': lng},
@@ -423,15 +436,20 @@ class _PantallaAlertasState extends State<PantallaAlertas> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _mostrarDialogAlerta(),
+        onPressed: _mostrarDialogAlerta,
         backgroundColor: const Color(0xFF0040A1),
         child: const Icon(Icons.add, color: Colors.white),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _alertas.isEmpty
-          ? _buildEmptyState()
-          : _buildAlertasList(),
+      body: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).padding.bottom + 8,
+        ),
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _alertas.isEmpty
+            ? _buildEmptyState()
+            : _buildAlertasList(),
+      ),
     );
   }
 
