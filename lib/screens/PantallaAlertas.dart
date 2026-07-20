@@ -440,17 +440,12 @@ class _PantallaAlertasState extends State<PantallaAlertas> {
         backgroundColor: const Color(0xFF0040A1),
         child: const Icon(Icons.add, color: Colors.white),
       ),
-      body: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).padding.bottom + 8,
-        ),
-        child: _isLoading
+      body: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : _alertas.isEmpty
             ? _buildEmptyState()
             : _buildAlertasList(),
-      ),
-    );
+      );
   }
 
   Widget _buildEmptyState() {

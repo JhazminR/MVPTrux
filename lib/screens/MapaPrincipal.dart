@@ -970,27 +970,22 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFEEEEEE),
-      body: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).padding.bottom + 72,
-        ),
-        child: IndexedStack(
-          index: _selectedIndex,
-          children: [
-            _buildMapScreen(), // Índice 0: Mapa
-            PantallaRutas(
-              // Índice 1 (¡Modificamos esto!)
-              onVolverAlMapa: () {
-                setState(() {
-                  _selectedIndex = 0; // Cambia a la pestaña del mapa
-                });
-              },
-            ),
-            const PantallaAlertas(), // Índice 2: Alertas
-            const PantallaTrofeo(), // Índice 3: Trofeo
-            const PantallaPerfil(), // Índice 4: Perfil
-          ],
-        ),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          _buildMapScreen(), // Índice 0: Mapa
+          PantallaRutas(
+            // Índice 1 (¡Modificamos esto!)
+            onVolverAlMapa: () {
+              setState(() {
+                _selectedIndex = 0; // Cambia a la pestaña del mapa
+              });
+            },
+          ),
+          const PantallaAlertas(), // Índice 2: Alertas
+          const PantallaTrofeo(), // Índice 3: Trofeo
+          const PantallaPerfil(), // Índice 4: Perfil
+        ],
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
@@ -1090,44 +1085,37 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
   Widget _buildBottomNavigationBar() {
     final bottomInset = MediaQuery.of(context).padding.bottom;
 
-    return SafeArea(
-      top: false,
-      child: Container(
-        padding: EdgeInsets.only(top: 8, bottom: bottomInset + 8),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF9F9F9),
-          border: const Border(
-            top: BorderSide(color: Color(0xFFC3C6D6), width: 1),
+    return Container(
+      padding: const EdgeInsets.only(top: 6, bottom: 6),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9F9F9),
+        border: const Border(
+          top: BorderSide(color: Color(0xFFC3C6D6), width: 1),
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x19000000),
+            blurRadius: 4,
+            offset: Offset(0, 2),
+            spreadRadius: -2,
           ),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x19000000),
-              blurRadius: 4,
-              offset: Offset(0, 2),
-              spreadRadius: -2,
-            ),
-            BoxShadow(
-              color: Color(0x19000000),
-              blurRadius: 6,
-              offset: Offset(0, 4),
-              spreadRadius: -1,
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildNavItem(icon: Icons.map, label: 'Mapa', index: 0),
-            _buildNavItem(icon: Icons.route, label: 'Rutas', index: 1),
-            _buildNavItem(
-              icon: Icons.notifications,
-              label: 'Alertas',
-              index: 2,
-            ),
-            _buildNavItem(icon: Icons.emoji_events, label: 'Trofeo', index: 3),
-            _buildNavItem(icon: Icons.person, label: 'Perfil', index: 4),
-          ],
-        ),
+          BoxShadow(
+            color: Color(0x19000000),
+            blurRadius: 6,
+            offset: Offset(0, 4),
+            spreadRadius: -1,
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildNavItem(icon: Icons.map, label: 'Mapa', index: 0),
+          _buildNavItem(icon: Icons.route, label: 'Rutas', index: 1),
+          _buildNavItem(icon: Icons.notifications, label: 'Alertas', index: 2),
+          _buildNavItem(icon: Icons.emoji_events, label: 'Trofeo', index: 3),
+          _buildNavItem(icon: Icons.person, label: 'Perfil', index: 4),
+        ],
       ),
     );
   }

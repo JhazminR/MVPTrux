@@ -82,137 +82,118 @@ class _SplashScreenTruxState extends State<SplashScreenTrux> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).padding.bottom,
+      body: Stack(
+        children: [
+          // ... (todos tus círculos decorativos, igual que antes) ...
+          // --- Círculo decorativo superior izquierdo ---
+          Positioned(
+            left: -40,
+            top: -40,
+            child: Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  center: Alignment.center,
+                  radius: 0.71,
+                  colors: [const Color(0x0C0056D2), const Color(0x000056D2)],
+                ),
+              ),
+            ),
           ),
-          child: Stack(
-            children: [
-              // ... (todos tus círculos decorativos, igual que antes) ...
-              // --- Círculo decorativo superior izquierdo ---
-              Positioned(
-                left: -40,
-                top: -40,
-                child: Container(
-                  width: 200,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      center: Alignment.center,
-                      radius: 0.71,
-                      colors: [
-                        const Color(0x0C0056D2),
-                        const Color(0x000056D2),
-                      ],
-                    ),
-                  ),
+          // --- Círculo decorativo inferior derecho ---
+          Positioned(
+            right: -40,
+            bottom: -80,
+            child: Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  center: Alignment.center,
+                  radius: 0.71,
+                  colors: [const Color(0x0C0056D2), const Color(0x000056D2)],
                 ),
               ),
-              // --- Círculo decorativo inferior derecho ---
-              Positioned(
-                right: -40,
-                bottom: -80,
-                child: Container(
-                  width: 200,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      center: Alignment.center,
-                      radius: 0.71,
-                      colors: [
-                        const Color(0x0C0056D2),
-                        const Color(0x000056D2),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              // --- Contenido principal ---
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+            ),
+          ),
+          // --- Contenido principal ---
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF0056D2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(
-                            Icons.directions_bus,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Text(
-                          'Trux',
-                          style: TextStyle(
-                            color: Color(0xFF0056D2),
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.60,
-                            height: 1.33,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    const Opacity(
-                      opacity: 0.7,
-                      child: Text(
-                        'TRUJILLO APP',
-                        style: TextStyle(
-                          color: Color(0xFF737785),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 1.20,
-                          height: 1.33,
-                        ),
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0056D2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.directions_bus,
+                        color: Colors.white,
+                        size: 24,
                       ),
                     ),
-                    const SizedBox(height: 40),
-                    // Indicador de carga o mensaje de error
-                    if (_isLoading) ...[
-                      const CircularProgressIndicator(color: Color(0xFF0056D2)),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Conectando tu ciudad...',
-                        style: TextStyle(
-                          color: Color(0xFF737785),
-                          fontSize: 14,
-                        ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Trux',
+                      style: TextStyle(
+                        color: Color(0xFF0056D2),
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.60,
+                        height: 1.33,
                       ),
-                    ] else if (_errorMessage.isNotEmpty) ...[
-                      Icon(Icons.error_outline, color: Colors.red[300]),
-                      const SizedBox(height: 8),
-                      Text(
-                        _errorMessage,
-                        style: const TextStyle(color: Colors.red, fontSize: 14),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Puedes continuar sin ubicación.',
-                        style: TextStyle(
-                          color: Color(0xFF737785),
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
+                    ),
                   ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 8),
+                const Opacity(
+                  opacity: 0.7,
+                  child: Text(
+                    'TRUJILLO APP',
+                    style: TextStyle(
+                      color: Color(0xFF737785),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1.20,
+                      height: 1.33,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40),
+                // Indicador de carga o mensaje de error
+                if (_isLoading) ...[
+                  const CircularProgressIndicator(color: Color(0xFF0056D2)),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Conectando tu ciudad...',
+                    style: TextStyle(color: Color(0xFF737785), fontSize: 14),
+                  ),
+                ] else if (_errorMessage.isNotEmpty) ...[
+                  Icon(Icons.error_outline, color: Colors.red[300]),
+                  const SizedBox(height: 8),
+                  Text(
+                    _errorMessage,
+                    style: const TextStyle(color: Colors.red, fontSize: 14),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Puedes continuar sin ubicación.',
+                    style: TextStyle(color: Color(0xFF737785), fontSize: 12),
+                  ),
+                ],
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

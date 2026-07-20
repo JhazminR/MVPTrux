@@ -282,112 +282,94 @@ class _MapaDetalleRutaState extends State<MapaDetalleRuta> {
         : 'Llegada en $_etaMinutos min (camina ${(widget.distanciaCaminataFinal ?? 0).round()} m)';
 
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).padding.bottom,
+      body: Stack(
+        children: [
+          // 1. El Mapa
+          GoogleMap(
+            onMapCreated: _onMapCreated,
+            initialCameraPosition: const CameraPosition(
+              target: LatLng(-8.115, -79.028),
+              zoom: 14.0,
+            ),
+            polylines: _polylines,
+            markers: _markers,
+            myLocationEnabled: true,
+            myLocationButtonEnabled: false,
+            zoomControlsEnabled: false,
           ),
-          child: Stack(
-            children: [
-              // 1. El Mapa
-              GoogleMap(
-                onMapCreated: _onMapCreated,
-                initialCameraPosition: const CameraPosition(
-                  target: LatLng(-8.115, -79.028),
-                  zoom: 14.0,
-                ),
-                polylines: _polylines,
-                markers: _markers,
-                myLocationEnabled: true,
-                myLocationButtonEnabled: false,
-                zoomControlsEnabled: false,
-              ),
 
-              // 2. Botón de regreso
-              Positioned(
-                top: 50,
-                left: 16,
-                child: InkWell(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(color: Colors.black26, blurRadius: 4),
+          // 2. Botón de regreso
+          Positioned(
+            top: 50,
+            left: 16,
+            child: InkWell(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+                ),
+                child: const Icon(Icons.arrow_back, color: Color(0xFF1A1C1C)),
+              ),
+            ),
+          ),
+
+          // 3. Tarjeta superior de información
+          Positioned(
+            top: 50,
+            left: 70,
+            right: 16,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black12, blurRadius: 8),
+                ],
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.directions_bus, color: Color(0xFF0040A1)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          titulo,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Color(0xFF8A8D9F),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          subtitulo,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1A1C1C),
+                          ),
+                        ),
                       ],
                     ),
-                    child: const Icon(
-                      Icons.arrow_back,
-                      color: Color(0xFF1A1C1C),
+                  ),
+                  Text(
+                    '${_distanciaKm.toStringAsFixed(1)} km',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF007232),
                     ),
                   ),
-                ),
+                ],
               ),
-
-              // 3. Tarjeta superior de información
-              Positioned(
-                top: 50,
-                left: 70,
-                right: 16,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: const [
-                      BoxShadow(color: Colors.black12, blurRadius: 8),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.directions_bus,
-                        color: Color(0xFF0040A1),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              titulo,
-                              style: const TextStyle(
-                                fontSize: 10,
-                                color: Color(0xFF8A8D9F),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              subtitulo,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF1A1C1C),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Text(
-                        '${_distanciaKm.toStringAsFixed(1)} km',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF007232),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
