@@ -269,7 +269,7 @@ class _PantallaAlertasState extends State<PantallaAlertas> {
                               },
                               decoration: const InputDecoration(
                                 labelText: 'Buscar destino',
-                                hintText: 'Ej: Mall Plaza',
+                                hintText: 'Ej: Mall Plaza Trujillo',
                                 border: OutlineInputBorder(),
                               ),
                             );
