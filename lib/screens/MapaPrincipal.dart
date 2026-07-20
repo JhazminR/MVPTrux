@@ -47,19 +47,27 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
   Future<Uint8List> _getBytesFromAsset(String path, int width) async {
     ByteData data = await rootBundle.load(path);
     ui.Codec codec = await ui.instantiateImageCodec(
-      data.buffer.asUint8List(), 
-      targetWidth: width
+      data.buffer.asUint8List(),
+      targetWidth: width,
     );
     ui.FrameInfo fi = await codec.getNextFrame();
-    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!.buffer.asUint8List();
+    return (await fi.image.toByteData(
+      format: ui.ImageByteFormat.png,
+    ))!.buffer.asUint8List();
   }
 
   // Carga inicial de los assets
   Future<void> _cargarIconosPersonalizados() async {
     // Redimensionamos de 400x400 a 100px para que se vean proporcionados en el mapa
-    final Uint8List markerIconBC = await _getBytesFromAsset('assets/images/icono_bc.png', 100);
-    final Uint8List markerIconD = await _getBytesFromAsset('assets/images/icono_d.png', 100);
-    
+    final Uint8List markerIconBC = await _getBytesFromAsset(
+      'assets/images/icono_bc.png',
+      100,
+    );
+    final Uint8List markerIconD = await _getBytesFromAsset(
+      'assets/images/icono_d.png',
+      100,
+    );
+
     if (mounted) {
       setState(() {
         _iconoBC = BitmapDescriptor.fromBytes(markerIconBC);
@@ -243,7 +251,7 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
 
     // Como es un MVP, podemos simular la variable de la línea o tomar la más cercana.
     // Aquí predefinimos el mensaje base requerido para la validación del jurado.
-    final String mensaje = 
+    final String mensaje =
         "🚨 *Alerta Trux* 🚨\n\n"
         "Estoy viajando en la Línea D (Micro Ícaro). Mi ubicación en vivo es:\n"
         "$urlMaps\n\n"
@@ -251,7 +259,9 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
 
     // Codificamos el mensaje para que sea válido en una URL
     final String mensajeCodificado = Uri.encodeComponent(mensaje);
-    final Uri whatsappUrl = Uri.parse("whatsapp://send?text=$mensajeCodificado");
+    final Uri whatsappUrl = Uri.parse(
+      "whatsapp://send?text=$mensajeCodificado",
+    );
 
     try {
       if (await canLaunchUrl(whatsappUrl)) {
@@ -263,10 +273,7 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
         // Fallback por si no tienen WhatsApp instalado o están en emulador
         final Uri webUrl = Uri.parse("https://wa.me/?text=$mensajeCodificado");
         if (await canLaunchUrl(webUrl)) {
-          await launchUrl(
-            webUrl, 
-            mode: LaunchMode.externalApplication
-          );
+          await launchUrl(webUrl, mode: LaunchMode.externalApplication);
         } else {
           throw 'No se pudo abrir WhatsApp ni el navegador web.';
         }
@@ -274,7 +281,11 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No se pudo abrir WhatsApp. Verifica que esté instalado.')),
+          const SnackBar(
+            content: Text(
+              'No se pudo abrir WhatsApp. Verifica que esté instalado.',
+            ),
+          ),
         );
       }
     }
@@ -338,12 +349,16 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
                 };
 
                 // Lógica condicional para asignar el icono según la ruta
-                BitmapDescriptor iconoVehiculo = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen);
-                
+                BitmapDescriptor iconoVehiculo =
+                    BitmapDescriptor.defaultMarkerWithHue(
+                      BitmapDescriptor.hueGreen,
+                    );
+
                 String rutaUpper = ruta.toUpperCase();
                 if (rutaUpper == 'D' && _iconoD != null) {
                   iconoVehiculo = _iconoD!;
-                } else if ((rutaUpper == 'B' || rutaUpper == 'C') && _iconoBC != null) {
+                } else if ((rutaUpper == 'B' || rutaUpper == 'C') &&
+                    _iconoBC != null) {
                   iconoVehiculo = _iconoBC!;
                 }
 
@@ -353,7 +368,7 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
                     position: LatLng(lat, lng),
                     icon: iconoVehiculo, // 👈 Se asigna el PNG personalizado
                     // Opcional: Centrar el punto de anclaje de la imagen
-                    anchor: const Offset(0.5, 0.5), 
+                    anchor: const Offset(0.5, 0.5),
                     onTap: () {
                       _showMicroBottomSheet(doc.id);
                     },
@@ -543,12 +558,18 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
     // --- LÓGICA DE ESTADO (MÓDULO 4) ---
     int segundosDesdeActualizacion = 0;
     if (ultimaActualizacion != null) {
-      segundosDesdeActualizacion = DateTime.now().difference(ultimaActualizacion).inSeconds;
+      segundosDesdeActualizacion = DateTime.now()
+          .difference(ultimaActualizacion)
+          .inSeconds;
     }
     bool enCamino = segundosDesdeActualizacion <= 15;
-    
-    Color estadoColor = enCamino ? const Color(0xFF007232) : const Color(0xFFE53935);
-    Color fondoEstadoColor = enCamino ? const Color(0xFFE8F5E9) : const Color(0xFFFFEBEE);
+
+    Color estadoColor = enCamino
+        ? const Color(0xFF007232)
+        : const Color(0xFFE53935);
+    Color fondoEstadoColor = enCamino
+        ? const Color(0xFFE8F5E9)
+        : const Color(0xFFFFEBEE);
     String estadoTexto = enCamino ? "En camino" : "Detenido";
     IconData estadoIcono = enCamino ? Icons.sensors : Icons.sensors_off;
 
@@ -622,7 +643,7 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
               ),
             ],
           ),
-          
+
           // --- 1. CHIP DE ESTADO DE CONEXIÓN ---
           Align(
             alignment: Alignment.centerLeft,
@@ -642,8 +663,8 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
                   Text(
                     estadoTexto,
                     style: TextStyle(
-                      color: estadoColor, 
-                      fontWeight: FontWeight.bold, 
+                      color: estadoColor,
+                      fontWeight: FontWeight.bold,
                       fontSize: 14,
                       fontFamily: 'Inter',
                     ),
@@ -652,8 +673,8 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
                   Text(
                     tiempoActualizacion, // Muestra "Hace X seg"
                     style: TextStyle(
-                      color: estadoColor.withOpacity(0.8), 
-                      fontWeight: FontWeight.w500, 
+                      color: estadoColor.withOpacity(0.8),
+                      fontWeight: FontWeight.w500,
                       fontSize: 12,
                       fontFamily: 'Inter',
                     ),
@@ -726,10 +747,10 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 20),
-          
-          // BOTÓN 1: VER DETALLE 
+
+          // BOTÓN 1: VER DETALLE
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -738,9 +759,7 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => MapaDetalleRuta(
-                      soloRuta: true,
-                    ),
+                    builder: (context) => MapaDetalleRuta(soloRuta: true),
                   ),
                 );
               },
@@ -762,16 +781,16 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
               ),
             ),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // BOTÓN 2: REPORTAR AFORO
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: () {
-                Navigator.pop(context); 
-                _mostrarDialogAforo(ruta); 
+                Navigator.pop(context);
+                _mostrarDialogAforo(ruta);
               },
               icon: const Icon(Icons.campaign, color: Color(0xFF0040A1)),
               label: const Text(
@@ -792,7 +811,7 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
               ),
             ),
           ),
-          
+
           const SizedBox(height: 8),
         ],
       ),
@@ -837,7 +856,9 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: const Text(
             '¿Cómo va el micro?',
             textAlign: TextAlign.center,
@@ -893,7 +914,10 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
       leading: Icon(icon, color: color, size: 28),
       title: Text(
         label,
-        style: const TextStyle(fontWeight: FontWeight.w500, fontFamily: 'Inter'),
+        style: const TextStyle(
+          fontWeight: FontWeight.w500,
+          fontFamily: 'Inter',
+        ),
       ),
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -929,7 +953,9 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
             ),
             backgroundColor: const Color(0xFF0040A1),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
             duration: const Duration(seconds: 4),
           ),
         );
@@ -944,22 +970,27 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFEEEEEE),
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: [
-          _buildMapScreen(), // Índice 0: Mapa
-          PantallaRutas(
-            // Índice 1 (¡Modificamos esto!)
-            onVolverAlMapa: () {
-              setState(() {
-                _selectedIndex = 0; // Cambia a la pestaña del mapa
-              });
-            },
-          ),
-          const PantallaAlertas(), // Índice 2: Alertas
-          const PantallaTrofeo(), // Índice 3: Trofeo
-          const PantallaPerfil(), // Índice 4: Perfil
-        ],
+      body: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).padding.bottom + 72,
+        ),
+        child: IndexedStack(
+          index: _selectedIndex,
+          children: [
+            _buildMapScreen(), // Índice 0: Mapa
+            PantallaRutas(
+              // Índice 1 (¡Modificamos esto!)
+              onVolverAlMapa: () {
+                setState(() {
+                  _selectedIndex = 0; // Cambia a la pestaña del mapa
+                });
+              },
+            ),
+            const PantallaAlertas(), // Índice 2: Alertas
+            const PantallaTrofeo(), // Índice 3: Trofeo
+            const PantallaPerfil(), // Índice 4: Perfil
+          ],
+        ),
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
@@ -1000,7 +1031,8 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
               // 🔴 NUEVO BOTÓN DE SEGURIDAD
               FloatingActionButton(
                 heroTag: 'btn_seguridad',
-                mini: false, // Más grande para que sea fácil de presionar en pánico
+                mini:
+                    false, // Más grande para que sea fácil de presionar en pánico
                 backgroundColor: const Color(0xFFE53935), // Rojo alerta
                 onPressed: _enviarAlertaWhatsApp,
                 child: const Icon(Icons.shield, color: Colors.white, size: 28),
@@ -1056,35 +1088,46 @@ class _MapaPrincipalState extends State<MapaPrincipal> {
   }
 
   Widget _buildBottomNavigationBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      decoration: const BoxDecoration(
-        color: Color(0xFFF9F9F9),
-        border: Border(top: BorderSide(color: Color(0xFFC3C6D6), width: 1)),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x19000000),
-            blurRadius: 4,
-            offset: Offset(0, 2),
-            spreadRadius: -2,
+    final bottomInset = MediaQuery.of(context).padding.bottom;
+
+    return SafeArea(
+      top: false,
+      child: Container(
+        padding: EdgeInsets.only(top: 8, bottom: bottomInset + 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF9F9F9),
+          border: const Border(
+            top: BorderSide(color: Color(0xFFC3C6D6), width: 1),
           ),
-          BoxShadow(
-            color: Color(0x19000000),
-            blurRadius: 6,
-            offset: Offset(0, 4),
-            spreadRadius: -1,
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildNavItem(icon: Icons.map, label: 'Mapa', index: 0),
-          _buildNavItem(icon: Icons.route, label: 'Rutas', index: 1),
-          _buildNavItem(icon: Icons.notifications, label: 'Alertas', index: 2),
-          _buildNavItem(icon: Icons.emoji_events, label: 'Trofeo', index: 3),
-          _buildNavItem(icon: Icons.person, label: 'Perfil', index: 4),
-        ],
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x19000000),
+              blurRadius: 4,
+              offset: Offset(0, 2),
+              spreadRadius: -2,
+            ),
+            BoxShadow(
+              color: Color(0x19000000),
+              blurRadius: 6,
+              offset: Offset(0, 4),
+              spreadRadius: -1,
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildNavItem(icon: Icons.map, label: 'Mapa', index: 0),
+            _buildNavItem(icon: Icons.route, label: 'Rutas', index: 1),
+            _buildNavItem(
+              icon: Icons.notifications,
+              label: 'Alertas',
+              index: 2,
+            ),
+            _buildNavItem(icon: Icons.emoji_events, label: 'Trofeo', index: 3),
+            _buildNavItem(icon: Icons.person, label: 'Perfil', index: 4),
+          ],
+        ),
       ),
     );
   }

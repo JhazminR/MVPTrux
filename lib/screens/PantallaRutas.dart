@@ -410,221 +410,235 @@ class _PantallaRutasState extends State<PantallaRutas> {
         ? _busquedasRecientes
         : _destinosFiltrados;
 
-    return Container(
-      color: const Color(0xFFF9F9F9),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // --- Header ---
-          Container(
-            height: 64,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: const BoxDecoration(
-              color: Color(0xFFF9F9F9),
-              border: Border(
-                bottom: BorderSide(color: Color(0xFFC3C6D6), width: 1),
-              ),
-            ),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Color(0xFF0040A1)),
-                  onPressed: () {
-                    if (widget.onVolverAlMapa != null) widget.onVolverAlMapa!();
-                  },
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  'Planear ruta',
-                  style: TextStyle(
-                    color: Color(0xFF1A1C1C),
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'Inter',
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).padding.bottom + 8,
+        ),
+        child: Container(
+          color: const Color(0xFFF9F9F9),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // --- Header ---
+              Container(
+                height: 64,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF9F9F9),
+                  border: Border(
+                    bottom: BorderSide(color: Color(0xFFC3C6D6), width: 1),
                   ),
                 ),
-              ],
-            ),
-          ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: Color(0xFF0040A1),
+                      ),
+                      onPressed: () {
+                        if (widget.onVolverAlMapa != null)
+                          widget.onVolverAlMapa!();
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Planear ruta',
+                      style: TextStyle(
+                        color: Color(0xFF1A1C1C),
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Inter',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 16),
-
-                  // --- 3. Tarjeta de Inputs Estilo Figma ---
-                  Row(
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Container(
-                          margin: const EdgeInsets.only(left: 16, right: 8),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: const Color(0xFF0040A1),
-                              width: 1.5,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 10,
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: const [
-                                  Icon(
-                                    Icons.radio_button_checked,
-                                    color: Color(0xFFC3C6D6),
-                                    size: 16,
-                                  ),
-                                  SizedBox(width: 12),
-                                  Expanded(
-                                    child: TextField(
-                                      enabled: false, // Simula "Mi ubicación"
-                                      decoration: InputDecoration(
-                                        hintText: 'Mi ubicación',
-                                        hintStyle: TextStyle(
-                                          color: Color(0xFF1A1C1C),
-                                          fontSize: 14,
-                                        ),
-                                        border: InputBorder.none,
-                                        isDense: true,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.only(left: 7),
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: SizedBox(
-                                    height: 12,
-                                    child: VerticalDivider(
-                                      color: Color(0xFFC3C6D6),
-                                      thickness: 1,
-                                    ),
-                                  ),
+                      const SizedBox(height: 16),
+
+                      // --- 3. Tarjeta de Inputs Estilo Figma ---
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              margin: const EdgeInsets.only(left: 16, right: 8),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: const Color(0xFF0040A1),
+                                  width: 1.5,
                                 ),
-                              ),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.circle,
-                                    color: Color(0xFF0040A1),
-                                    size: 16,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: TextField(
-                                      controller: _buscadorController,
-                                      onChanged: _filtrarDestinos,
-                                      decoration: const InputDecoration(
-                                        hintText: '¿Hacia dónde vas?',
-                                        hintStyle: TextStyle(
-                                          color: Color(0xFF8A8D9F),
-                                          fontSize: 14,
-                                        ),
-                                        border: InputBorder.none,
-                                        isDense: true,
-                                      ),
-                                    ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 10,
                                   ),
                                 ],
                               ),
-                            ],
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: const [
+                                      Icon(
+                                        Icons.radio_button_checked,
+                                        color: Color(0xFFC3C6D6),
+                                        size: 16,
+                                      ),
+                                      SizedBox(width: 12),
+                                      Expanded(
+                                        child: TextField(
+                                          enabled:
+                                              false, // Simula "Mi ubicación"
+                                          decoration: InputDecoration(
+                                            hintText: 'Mi ubicación',
+                                            hintStyle: TextStyle(
+                                              color: Color(0xFF1A1C1C),
+                                              fontSize: 14,
+                                            ),
+                                            border: InputBorder.none,
+                                            isDense: true,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const Padding(
+                                    padding: EdgeInsets.only(left: 7),
+                                    child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: SizedBox(
+                                        height: 12,
+                                        child: VerticalDivider(
+                                          color: Color(0xFFC3C6D6),
+                                          thickness: 1,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.circle,
+                                        color: Color(0xFF0040A1),
+                                        size: 16,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: TextField(
+                                          controller: _buscadorController,
+                                          onChanged: _filtrarDestinos,
+                                          decoration: const InputDecoration(
+                                            hintText: '¿Hacia dónde vas?',
+                                            hintStyle: TextStyle(
+                                              color: Color(0xFF8A8D9F),
+                                              fontSize: 14,
+                                            ),
+                                            border: InputBorder.none,
+                                            isDense: true,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          // Botón de Intercambio
+                          Container(
+                            margin: const EdgeInsets.only(right: 16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE5F0FF),
+                              shape: BoxShape.circle,
+                            ),
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.swap_vert,
+                                color: Color(0xFF0040A1),
+                              ),
+                              onPressed: () {}, // Simulación visual
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // --- 4. Chips de Acceso Rápido ---
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          children: [
+                            _buildQuickActionChip(Icons.home, 'Casa'),
+                            const SizedBox(width: 8),
+                            _buildQuickActionChip(
+                              Icons.work_outline,
+                              'Trabajo',
+                            ),
+                            const SizedBox(width: 8),
+                            _buildQuickActionChip(Icons.add, 'Guardar'),
+                          ],
+                        ),
+                      ),
+
+                      const Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        child: Divider(color: Color(0xFFC3C6D6)),
+                      ),
+
+                      // --- 5. Lista de Resultados / Recientes ---
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 8,
+                        ),
+                        child: Text(
+                          _getTituloSeccion(),
+                          style: const TextStyle(
+                            color: Color(0xFF8A8D9F),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.0,
                           ),
                         ),
                       ),
-                      // Botón de Intercambio
-                      Container(
-                        margin: const EdgeInsets.only(right: 16),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE5F0FF),
-                          shape: BoxShape.circle,
-                        ),
-                        child: IconButton(
-                          icon: const Icon(
-                            Icons.swap_vert,
-                            color: Color(0xFF0040A1),
+
+                      // Contenido de la lista
+                      if (_debeMostrarMensajeVacio())
+                        _buildEmptyStateWidget()
+                      else if (listaAMostrar.isEmpty)
+                        _buildEmptyResultsWidget()
+                      else
+                        ...listaAMostrar.map(
+                          (destino) => _buildDestinoItem(
+                            context,
+                            destino,
+                            mostrandoRecientes,
                           ),
-                          onPressed: () {}, // Simulación visual
                         ),
-                      ),
+
+                      // Espacio adicional al final para simular la tarjeta "Trujillo en Movimiento" si hay pocos items
+                      const SizedBox(height: 100),
                     ],
                   ),
-
-                  const SizedBox(height: 16),
-
-                  // --- 4. Chips de Acceso Rápido ---
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      children: [
-                        _buildQuickActionChip(
-                          Icons.home,
-                          'Casa',
-                          isPrimary: true,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildQuickActionChip(Icons.work_outline, 'Trabajo'),
-                        const SizedBox(width: 8),
-                        _buildQuickActionChip(Icons.add, 'Guardar'),
-                      ],
-                    ),
-                  ),
-
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    child: Divider(color: Color(0xFFC3C6D6)),
-                  ),
-
-                  // --- 5. Lista de Resultados / Recientes ---
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 8,
-                    ),
-                    child: Text(
-                      _getTituloSeccion(),
-                      style: const TextStyle(
-                        color: Color(0xFF8A8D9F),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                  ),
-
-                  // Contenido de la lista
-                  if (_debeMostrarMensajeVacio())
-                    _buildEmptyStateWidget()
-                  else if (listaAMostrar.isEmpty)
-                    _buildEmptyResultsWidget()
-                  else
-                    ...listaAMostrar.map(
-                      (destino) => _buildDestinoItem(
-                        context,
-                        destino,
-                        mostrandoRecientes,
-                      ),
-                    ),
-
-                  // Espacio adicional al final para simular la tarjeta "Trujillo en Movimiento" si hay pocos items
-                  const SizedBox(height: 100),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
